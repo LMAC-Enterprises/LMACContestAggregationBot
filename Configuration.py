@@ -24,4 +24,4 @@ class Configuration(DefaultConfiguration):
     searchInMaxPosts = 100
 
     apiKey = '<SECRET KEY>'
-    apiUrl = 'http://lmac.gallery/lmac-api/v1/lmac'
+    apiUrl = 'http://<HOST>/lmac-api/v1/lmac'
