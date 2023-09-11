@@ -1,39 +1,44 @@
 import logging
-import mysql.connector
 import json
+
+import requests
+
+from services.aspectLogging import LogAspect
+
+
+class LMACApiClient:
+    def __init__(self, apiKey: str, apiUrl: str):
+        self._apiKey = apiKey
+        self._apiUrl = apiUrl
+        self._logger = LogAspect('runtime').logger()
+
+    def _sendRequest(self, apiFunction: str, jsonData: any):
+        response = requests.post(
+            self._apiUrl,
+            json={
+                'apiFunction': apiFunction,
+                'apiKey': self._apiKey,
+                'arguments': jsonData
+            },
+            headers={
+                'Content-type': 'application/json',
+                'Accept': 'text/plain'
+            }
+        )
+        response = response.json()
+
+        return response['result'] != 'error'
+
+    def addContestOutcomes(self, outcomes: list[dict]) -> bool:
+        return self._sendRequest('addContestOutcomes', {'outcomes': outcomes})
 
 
 class DataHandler:
     COLUMN_CONTEST_ID = 0
 
-    def __init__(self, mysqlServerAddress: str, mysqlUser: str, mysqlPassword: str, mysqlDatabase: str):
-
+    def __init__(self, apiKey: str, apiUrl: str):
         self.logger = logging.getLogger()
-
-        try:
-            self.mysqlDb = mysql.connector.connect(
-                host=mysqlServerAddress,
-                user=mysqlUser,
-                password=mysqlPassword,
-                database=mysqlDatabase,
-                charset='utf8',
-                use_unicode=True
-            )
-        except Exception as e:
-            self.logger.error(
-                'Database error. {originalMessage}'.format(originalMessage=getattr(e, 'message', repr(e))))
-
-        self._contestLookup = {}
-        self._loadContestIds()
-
-    def _loadContestIds(self):
-        cursor = self.mysqlDb.cursor()
-
-        cursor.execute("SELECT * FROM lmac_contests ORDER BY contestId DESC LIMIT 1000")
-
-        qresult = cursor.fetchall()
-        for contestRow in qresult:
-            self._contestLookup[contestRow[DataHandler.COLUMN_CONTEST_ID]] = True
+        self._apiClient = LMACApiClient(apiKey, apiUrl)
 
     def _getJsonFromWinnersDict(self, winners: dict):
         output = {}
@@ -44,21 +49,21 @@ class DataHandler:
         return json.dumps(output)
 
     def updateContests(self, contests: dict):
-        cursor = self.mysqlDb.cursor()
         print('saving')
-        for contestEntity in contests.values():
-            if int(contestEntity.contestId) in self._contestLookup.keys():
-                continue
-            print(contestEntity.contestId)
-            print(contestEntity.title)
-            cursor.execute(
-                "INSERT INTO lmac_contests (contestId, title, postUrl, templateImageUrl, winners) VALUES (%s, %s, %s, %s, %s)",
-                (
-                    contestEntity.contestId,
-                    contestEntity.title.encode('ascii', 'ignore'),
-                    contestEntity.postUrl.encode('ascii', 'ignore'),
-                    contestEntity.templateImageUrl.encode('ascii', 'ignore'),
-                    self._getJsonFromWinnersDict(contestEntity.winners)
-                ))
 
-        self.mysqlDb.commit()
+        contestList = []
+
+        for contest in contests.values():
+            winners = {}
+            for winner in contest.winners.keys():
+                winners[winner] = contest.winners[winner].toDict()
+
+            contestDict = contest.toDict()
+            contestDict['winners'] = winners
+
+            contestList.append(contestDict)
+
+            print(contestDict)
+
+        self._apiClient.addContestOutcomes(contestList)
+

@@ -9,7 +9,7 @@ class WinnerPostInterpreter:
     _tableControllers: dict = {}
     _top5WinnerRegex = r"<a href=\"(.*)\".*<img\s*src=\"(.*)\".*@([a-z0-9_]*)"
     _topXXWinnerRegex = r"<a href=\"(.*)\".*<img\s*src=\"(.*)\".*@([a-z0-9_]*)"
-    _templateImageRegex = r"<img\s+src=\"(.*)\""
+    _templateImageRegex = r"<img\s+src=\"(.*)\" width"
     _winnerEntities: dict
     templateImageUrl: str
 

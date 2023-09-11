@@ -9,14 +9,19 @@ class DefaultConfiguration:
 
     searchInAccount: str = ''
 
+    apiKey: str = ''
+    apiUrl: str = ''
+
 
 class Configuration(DefaultConfiguration):
     mysqlHost = "localhost"
-    mysqlUser = "testuser"
-    mysqlPassword = "testpassword"
-    mysqlDatabaseName = "testdatabase"
+    mysqlUser = ""
+    mysqlPassword = ""
+    mysqlDatabaseName = ""
 
-    searchInAccount = 'shaka'
+    searchInAccount = 'lmac'
 
     searchInMaxPosts = 100
 
+    apiKey = '<SECRET KEY>'
+    apiUrl = 'http://lmac.gallery/lmac-api/v1/lmac'

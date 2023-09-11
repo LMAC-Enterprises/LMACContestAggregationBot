@@ -20,3 +20,11 @@ class ContestEntity:
             'postUrl': self.postUrl,
         })
 
+    def toDict(self) -> dict:
+        return {
+            'contestId': self.contestId,
+            'title': self.title,
+            'templateImageUrl': self.templateImageUrl,
+            'postUrl': self.postUrl,
+            'winners': self.winners
+        }

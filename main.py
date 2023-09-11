@@ -2,7 +2,6 @@ import logging
 
 from Configuration import Configuration
 from DataHandling.DataHandler import DataHandler
-from networking.HivePostAggregator import HivePostAggregator
 from networking.HivePostAggregator2 import HivePostAggregator2
 
 if __name__ == '__main__':
@@ -24,10 +23,8 @@ if __name__ == '__main__':
         exit(1)
 
     dataHandler = DataHandler(
-        Configuration.mysqlServerAddress,
-        Configuration.mysqlUser,
-        Configuration.mysqlPassword,
-        Configuration.mysqlDatabaseName
+        Configuration.apiKey,
+        Configuration.apiUrl
     )
     dataHandler.updateContests(contests)
 

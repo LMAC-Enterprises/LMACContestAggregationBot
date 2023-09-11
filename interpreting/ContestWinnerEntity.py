@@ -10,7 +10,7 @@ class ContestWinnerEntity:
         self.imageUrl = imageUrl
         self.postUrl = postUrl
 
-    def tojson(self):
+    def toDict(self) -> dict:
         return {
             'winningPlace': self.winningPlace,
             'artist': self.artist,
